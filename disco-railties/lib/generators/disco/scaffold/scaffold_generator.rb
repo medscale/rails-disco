@@ -59,9 +59,15 @@ module Disco
 
       def add_event_source_to_views
         return if behavior == :revoke
-        include_text = "<%= event_source('#{class_name}Projection') %>\n"
-        prepend_to_file File.join('app/views', class_path, plural_file_name, 'index.html.erb'), include_text
-        prepend_to_file File.join('app/views', class_path, plural_file_name, 'show.html.erb'), include_text
+        template_engine = Rails.application.config.generators.rails[:template_engine]
+        if template_engine == :slim
+          include_text = "= event_source('#{class_name}Projection')\n"
+        else 
+          include_text = "<%= event_source('#{class_name}Projection') %>\n"
+        end
+        
+        prepend_to_file File.join('app/views', class_path, plural_file_name, "index.html.#{template_engine}"), include_text
+        prepend_to_file File.join('app/views', class_path, plural_file_name, "show.html.#{template_engine}"), include_text
       end
 
       def add_to_projections(action)
